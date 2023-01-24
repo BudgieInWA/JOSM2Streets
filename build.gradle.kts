@@ -8,6 +8,10 @@ version = "0.1-DEV"
 
 repositories {
     mavenCentral()
+
+//    flatDir {
+//        dirs("lib") // TODO put the osm2streets-0.1.0.jar in lib/
+//    }
 }
 
 josm {
@@ -42,6 +46,8 @@ josm {
 }
 
 dependencies {
+    implementation(files("lib/StreetNetwork.jar"))
+
 //    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
 //    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }
