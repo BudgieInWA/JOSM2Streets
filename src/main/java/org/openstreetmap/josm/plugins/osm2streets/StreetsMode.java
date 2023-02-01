@@ -47,34 +47,47 @@ public class StreetsMode  extends MapMode implements MouseListener, MouseMotionL
     public void paint(Graphics2D g, MapView mv, Bounds bbox) {
         if (mv == null || mv.getScale() > 16) return;
 
-        ProjectionBounds bounds = mv.getProjectionBounds();
-
-        Logging.info(bbox.toString());
-        Logging.info(bounds.toString());
-
-        // DEBUG: Draw a diagonal line across the viewport, so we know this code is active.
-        g.setColor(Color.RED);
-        g.setStroke(new BasicStroke(10));
-
-        var a = mv.getPoint(bounds.getMin());
-        var b = mv.getPoint(bounds.getMax());
-        g.drawLine(a.x, a.y, b.x, b.y);
-
         if (streets == null) return;
 
-        // Draw the road surface polygons.
-        g.setColor(Color.DARK_GRAY);
+        ProjectionBounds bounds = mv.getProjectionBounds();
 
-        var surfaces = streets.getRoadSurface();
-        for (var polygon: surfaces) {
-            var n = polygon.size();
+        // Draw the road surface polygons.
+        for (var surface: streets.getSurfaces()) {
+            var n = surface.area.size();
             var xs = new int[n];
             var ys = new int[n];
             for (int i = 0; i < n; i++) {
-                var loc = polygon.get(i);
+                var loc = surface.area.get(i);
                 var point = mv.getPoint(new LatLon(loc.lat, loc.lon));
                 xs[i] = point.x;
                 ys[i] = point.y;
+            }
+
+            switch (surface.material) {
+                default:
+                case "asphalt":      g.setColor(new Color( 77,  77,  77, 180)); break;
+                case "fine_asphalt": g.setColor(new Color( 99,  55,  55, 180)); break;
+                case "concrete":     g.setColor(new Color(141, 141, 141, 180)); break;
+            }
+            g.fillPolygon(xs, ys, n);
+        }
+
+        // Draw the paint polygons.
+        for (var paint: streets.getPaintAreas()) {
+            var n = paint.area.size();
+            var xs = new int[n];
+            var ys = new int[n];
+            for (int i = 0; i < n; i++) {
+                var loc = paint.area.get(i);
+                var point = mv.getPoint(new LatLon(loc.lat, loc.lon));
+                xs[i] = point.x;
+                ys[i] = point.y;
+            }
+
+            switch (paint.color) {
+                default:
+                case "white":  g.setColor(new Color(255, 255, 255, 180)); break;
+                case "yellow": g.setColor(new Color(255, 211,  49, 180)); break;
             }
             g.fillPolygon(xs, ys, n);
         }
